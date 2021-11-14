@@ -1,10 +1,14 @@
 from django.shortcuts import render
+from .forms import *
 
 def aws(request):
-    return render(request, 'aws.html')
+    form = AWSForm()
+    return render(request, 'aws.html', {'form': form})
 
 def azure(request):
-    return render(request, 'azure.html')
+    form = AzureForm()
+    return render(request, 'azure.html', {'form': form})
 
 def gcp(request):
-    return render(request, 'gcp.html')
+    form = GCPForm()
+    return render(request, 'gcp.html', {'form': form})

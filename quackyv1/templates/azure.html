@@ -1,5 +1,58 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-Azure
+<div class="mx-5 my-5" style="min-width: 1024px;">
+    <div class="mb-3 dropdown">
+        <a class="btn btn-primary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-expanded="false">
+            Azure
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="{% url 'aws' %}">AWS</a>
+            <a class="dropdown-item disabled" href="{% url 'azure' %}">Azure</a>
+            <a class="dropdown-item" href="{% url 'gcp' %}">GCP <span class="badge badge-secondary">Beta</span></a>
+        </div>
+    </div>
+    <form action="/" method="post">
+        {% csrf_token %}
+        <div class="row mx-0 my-0">
+            <div class="col-sm-9 pl-0 pr-5">
+                <h3>Policy</h3>
+                <hr/>
+                <div style="float: left; width: 49%;">
+                    <label>Role Definition <strong style="color: red;">*</strong></label>
+                    {{ form.role_definition }}
+                </div>
+                <div style="float: right; width: 49%">
+                    <label>Role Assignment <strong style="color: red;">*</strong></label>
+                    {{ form.role_assignment }}
+                </div>
+                <script type="text/javascript" src="{% static 'jquery-3.5.1.min.js' %}"></script>
+                <script type="text/javascript" src="{% static 'codemirror-5.57.0/lib/codemirror.js' %}"></script>
+                <script type="text/javascript" src="{% static 'codemirror-5.57.0/addon/mode/simple.js' %}"></script>
+                <script type="text/javascript" src="{% static 'codemirror-5.57.0/addon/edit/closebrackets.js' %}"></script>
+                <script type="text/javascript" src="{% static 'codemirror-5.57.0/addon/edit/matchbrackets.js' %}"></script>
+                <script type="text/javascript" src="{% static 'azure_editors.js' %}"></script>
+            </div>
+            <div class="col-sm-3 px-0">
+                <h3>Configuration</h3>
+                <hr/>
+                <label>Bound <strong style="color: red;">*</strong></label>
+                <div class="input-group mb-2">
+                    {{ form.bound }}
+                </div>
+                <div class="form-check">
+                    {{ form.constraints }}
+                    <label class="form-check-label">Resource type constraints</label>
+                </div>
+                <div class="form-check">
+                    {{ form.encoding }}
+                    <label class="form-check-label">Action encoding</label>
+                </div>
+                <div class="form-group my-0" style="position: absolute; bottom: 0px; width: inherit;">
+                    <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 {% endblock %}
