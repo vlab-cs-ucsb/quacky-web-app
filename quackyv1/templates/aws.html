@@ -12,7 +12,7 @@
             <a class="dropdown-item" href="{% url 'gcp' %}">GCP <span class="badge badge-secondary">Beta</span></a>
         </div>
     </div>
-    <form action="/" method="post">
+    <form action="/aws" method="post">
         {% csrf_token %}
         <div class="row mx-0 my-0">
             <div class="col-sm-9 pl-0 pr-5">
@@ -55,4 +55,315 @@
         </div>
     </form>
 </div>
+{% if results and results.is_single %}
+<div class="mx-5 my-5" style="min-width: 1024px;">
+    <h3>Results</h3>
+    <hr/>
+    <ul class="nav nav-pills mb-2">
+        <li class="nav-item">
+            <a class="nav-link active" href="#summary" data-toggle="tab" role="tab">Summary</a>
+        </li>
+        {% if results.var %}
+        <li class="nav-item">
+            <a class="nav-link" href="#var" data-toggle="tab" role="tab">Variables</a>
+        </li>
+        {% endif %}
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="summary" role="tabpanel">
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Status</label>
+                    {% if results.status == "Success" %}
+                    <div class="card alert-success">
+                        <div class="card-body monospace" >
+                            <samp>Success</samp>
+                        </div>
+                    </div>
+                    {% elif results.status == "Timeout" %}
+                    <div class="card alert-warning">
+                        <div class="card-body monospace" >
+                            <samp>Timeout</samp>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card alert-danger">
+                        <div class="card-body monospace" >
+                            <samp>Failure</samp>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% if results.is_sat and results.solve_time %}
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Solve Time</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.solve_time }} ms</samp>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-9">
+                    <label>Satisfiability</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.is_sat }}</samp>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if results.count and results.count_time %}
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Count Time</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.count_time }} ms</samp>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-9">
+                    <label># Requests Allowed (Model Count)</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.count }}</samp>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% if results.var %}
+        <div class="tab-pane" id="var" role="tabpanel">
+            <div class="row">
+                <div class="col-12 mb-2">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Variable</th>
+                                    <th scope="col">Count Time (ms)</th>
+                                    <th scope="col">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in results.var.items %}
+                                <tr>
+                                    <td scope="col"><samp>{{ key }}</samp></td>
+                                    <td scope="col"><samp>{{ value.count_time }}</samp></td>
+                                    <td scope="col"><samp>{{ value.count }}</samp></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% elif results and not results.is_single %}
+<div class="mx-5 my-5" style="min-width: 1024px;">
+    <h3>Results</h3>
+    <hr/>
+    <ul class="nav nav-pills mb-2">
+        <li class="nav-item">
+            <a class="nav-link active" href="#summary" data-toggle="tab" role="tab">Summary</a>
+        </li>
+        {% if results.0.var or results.1.var %}
+        <li class="nav-item">
+            <a class="nav-link" href="#var" data-toggle="tab" role="tab">Variables</a>
+        </li>
+        {% endif %}
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="summary" role="tabpanel">
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Status</label>
+                    {% if results.0.status == "Success" and results.1.status == "Success" %}
+                    <div class="card alert-success">
+                        <div class="card-body monospace" >
+                            <samp>Success</samp>
+                        </div>
+                    </div>
+                    {% elif results.0.status == "Timeout" or results.1.status == "Timeout" %}
+                    <div class="card alert-warning">
+                        <div class="card-body monospace" >
+                            <samp>Timeout</samp>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card alert-danger">
+                        <div class="card-body monospace" >
+                            <samp>Failure</samp>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-9">
+                    <label>Relative Permissiveness</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            {% if results.0.is_sat == "SAT" and results.1.is_sat == "UNSAT" %}
+                            <samp>Policy 1 is <strong>more permissive</strong> than Policy 2</samp>
+                            {% elif results.0.is_sat == "UNSAT" and results.1.is_sat == "SAT" %}
+                            <samp>Policy 1 is <strong>less permissive</strong> than Policy 2</samp>
+                            {% elif results.0.is_sat == "UNSAT" and results.1.is_sat == "UNSAT" %}
+                            <samp>Policy 1 is <strong>equivalent</strong> to Policy 2</samp>
+                            {% else %}
+                            <samp>Policy 1 and Policy 2 <strong>do not subsume each other</strong></samp>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <h5>Policy 1 ⇏ Policy 2</h5>
+            <hr/>
+            {% if results.0.is_sat and results.0.solve_time %}
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Solve Time</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.0.solve_time }} ms</samp>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-9">
+                    <label>Satisfiability</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.0.is_sat }}</samp>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if results.0.count and results.0.count_time %}
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Count Time</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.0.count_time }} ms</samp>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-9">
+                    <label># Requests Allowed (Model Count)</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.0.count }}</samp>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <br/>
+            <h5>Policy 2 ⇏ Policy 1</h5>
+            <hr/>
+            {% if results.1.is_sat and results.1.solve_time %}
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Solve Time</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.1.solve_time }} ms</samp>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-9">
+                    <label>Satisfiability</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.1.is_sat }}</samp>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if results.1.count and results.1.count_time %}
+            <div class="row mb-2">
+                <div class="col-3">
+                    <label>Count Time</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.1.count_time }} ms</samp>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-9">
+                    <label># Requests Allowed (Model Count)</label>
+                    <div class="card">
+                        <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
+                            <samp>{{ results.1.count }}</samp>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% if results.0.var or results.1.var %}
+        <div class="pt-3 tab-pane" id="var" role="tabpanel">
+            <h5>Policy 1 ⇏ Policy 2</h5>
+            <div class="row">
+                <div class="col-12 mb-2">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Variable</th>
+                                    <th scope="col">Count Time (ms)</th>
+                                    <th scope="col">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in results.0.var.items %}
+                                <tr>
+                                    <td scope="col"><samp>{{ key }}</samp></td>
+                                    <td scope="col"><samp>{{ value.count_time }}</samp></td>
+                                    <td scope="col"><samp>{{ value.count }}</samp></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <h5>Policy 2 ⇏ Policy 1</h5>
+            <div class="row">
+                <div class="col-12 mb-2">
+                    <div class="table-responsive mt-2">
+                        <table class="table table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Variable</th>
+                                    <th scope="col">Count Time (ms)</th>
+                                    <th scope="col">Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for key, value in results.1.var.items %}
+                                <tr>
+                                    <td scope="col"><samp>{{ key }}</samp></td>
+                                    <td scope="col"><samp>{{ value.count_time }}</samp></td>
+                                    <td scope="col"><samp>{{ value.count }}</samp></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}

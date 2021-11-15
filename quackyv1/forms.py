@@ -1,7 +1,7 @@
 from django import forms
 
 class AWSForm(forms.Form):
-    policy1 = forms.CharField(required = True, widget = forms.Textarea(attrs = {
+    policy1 = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'policy1'
     }))
     policy2 = forms.CharField(required = False, widget = forms.Textarea(attrs = {
@@ -19,10 +19,10 @@ class AWSForm(forms.Form):
     }))
 
 class AzureForm(forms.Form):
-    role_definition = forms.CharField(required = True, widget = forms.Textarea(attrs = {
+    role_definition = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'roledefinition'
     }))
-    role_assignment = forms.CharField(required = True, widget = forms.Textarea(attrs = {
+    role_assignment = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'roleassignment'
     }))
     bound = forms.IntegerField(required = True, initial = 150, widget = forms.NumberInput(attrs = {
@@ -37,10 +37,10 @@ class AzureForm(forms.Form):
     }))
 
 class GCPForm(forms.Form):
-    role = forms.CharField(required = True, widget = forms.Textarea(attrs = {
+    role = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'role'
     }))
-    role_bindings = forms.CharField(required = True, widget = forms.Textarea(attrs = {
+    role_bindings = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'rolebindings'
     }))
     bound = forms.IntegerField(required = True, initial = 150, widget = forms.NumberInput(attrs = {
