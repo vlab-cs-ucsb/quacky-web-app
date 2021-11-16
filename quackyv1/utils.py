@@ -1,3 +1,4 @@
+import json
 import re
 import sys
 import time
@@ -13,59 +14,6 @@ FAILURE = {
     'is_single': True,
     'status': 'Failure'
 }
-
-SINGLE_STUB = {
-    'is_single': True,
-    'status': 'Success',
-    'solve_time': '420.0',
-    'is_sat': 'SAT',
-    'count_time': '69.0',
-    'count': '12345',
-    'var': {
-        'x': {
-            'count': '1',
-            'count_time': '1.0'
-        },
-        'y': {
-            'count': '2',
-            'count_time': '2.0'
-        }
-    }
-}
-
-MULTI_STUB = ({
-    'status': 'Success',
-    'solve_time': '420.0',
-    'is_sat': 'SAT',
-    'count_time': '69.0',
-    'count': '12345',
-    'var': {
-        'x': {
-            'count': '1',
-            'count_time': '1.0'
-        },
-        'y': {
-            'count': '2',
-            'count_time': '2.0'
-        }
-    }
-}, {
-    'status': 'Success',
-    'solve_time': '420.0',
-    'is_sat': 'SAT',
-    'count_time': '69.0',
-    'count': '12345',
-    'var': {
-        'x': {
-            'count': '1',
-            'count_time': '1.0'
-        },
-        'y': {
-            'count': '2',
-            'count_time': '2.0'
-        }
-    }
-})
 
 def ta_aws_single(d):
     # Create policy
@@ -139,10 +87,129 @@ def ta_aws_multi(d):
     return (results1, results2)
 
 def ta_azure(d):
-    return SINGLE_STUB
+    # Create policy
+    fname = str(int(round(time.time() * 1000)))
+
+    f = open(fname + '.json', 'w')
+    f.write(azure2policy(d)) # Convert Azure stuff to policy model
+    f.close()
+
+    global shell
+    out, err = shell.mv(fname + '.json', QUACKY_DIR)
+
+    # Translate policy
+    cmd = 'python3 translate_policy.py -p1 {0}.json -o {0}'.format(fname)
+
+    if d['constraints']:
+        cmd += ' -c'
+    if d['encoding']:
+        cmd += ' -e'
+
+    out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
+
+    # Solve SMT formula
+    results = get_results(fname + '_1.smt2', d['bound'], 30)
+    results['is_single'] = True
+
+    # Clean up
+    out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+
+    return results
 
 def ta_gcp(d):
-    return SINGLE_STUB
+    # Create policy
+    fname = str(int(round(time.time() * 1000)))
+
+    f = open(fname + '.json', 'w')
+    f.write(gcp2policy(d)) # Convert GCP stuff to policy model
+    f.close()
+
+    global shell
+    out, err = shell.mv(fname + '.json', QUACKY_DIR)
+
+    # Translate policy
+    cmd = 'python3 translate_policy.py -p1 {0}.json -o {0}'.format(fname)
+
+    if d['constraints']:
+        cmd += ' -c'
+    if d['encoding']:
+        cmd += ' -e'
+
+    out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
+
+    # Solve SMT formula
+    results = get_results(fname + '_1.smt2', d['bound'], 30)
+    results['is_single'] = True
+
+    # Clean up
+    out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+
+    return results
+
+def azure2policy(d):
+    role_definition = json.loads(d['role_definition'])
+    role_assignments = json.loads(d['role_assignments'])
+
+    statements = []
+
+    for ra in role_assignments:
+        for rd in role_definition:
+            if ra['properties']['roleDefinitionId'] == rd['Id']:
+                
+                statement = {
+                    'Id': rd['Id'],
+                    'Effect': 'Allow',
+                    'Principal': ra['properties']['principalId'],
+                    'Action': [a.lower() for a in rd['Actions'] + rd['DataActions']],
+                }
+
+                if len(rd['NotActions'] + rd['NotDataActions']) > 0:
+                    statement['NotAction']: [a.lower() for a in rd['NotActions'] + rd['NotDataActions']]
+
+                if ra['scope'].count('/') <= 6:
+                    statement['Resource'] = ra['scope'].lower() + '/*'
+                else:
+                    statement['Resource'] = ra['scope'].lower()
+                
+                if 'condition' in ra['properties']:
+                    statement['Condition'] = ra['properties']['condition']
+
+                statements.append(statement)
+
+    return json.dumps({'Version': 'azure', 'Statement': statements}, indent=4)
+
+def gcp2policy(d):
+    role = json.loads(d['role'])
+    role_bindings = json.loads(d['role_bindings'])
+
+    statements = []
+
+    for rb in role_bindings['bindings']:
+        for rd in role:
+            if rb['role'] == rd['name']:
+                
+                statement = {
+                    'Id': rd['title'],
+                    'Effect': 'Allow',
+                    'Principal': rb['members'],
+                    'Action': [a.lower() for a in rd['includedPermissions']],
+                }
+
+                if rb['level'].count('/') <= 2:
+                    statement['Resource'] = rb['level'].lower() + '/*'
+                else:
+                    statement['Resource'] = rb['level'].lower()
+
+                if 'condition' in rb:
+                    statement['Condition'] = rb['condition']['expression'].lower()
+
+                statements.append(statement)
+
+    return json.dumps({'Version': 'gcp', 'Statement': statements}, indent=4)
 
 def get_results(fname, bound, timeout):
     cmd = 'timeout -k {0}s {0}s'.format(timeout)
@@ -179,7 +246,6 @@ def get_results(fname, bound, timeout):
                     pass
 
     return results
-
 
 # Parse ABC output (courtesy of VLab)
 def get_abc_result_line(out, err):

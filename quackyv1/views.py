@@ -38,9 +38,9 @@ def azure(request):
         if form.is_valid():
             d = form.cleaned_data
 
-            if not d['role_definition'] or not d['role_assignment']:
+            if not d['role_definition'] or not d['role_assignments']:
                 results = FAILURE
-            elif d['role_definition'].isspace() or d['role_assignment'].isspace():
+            elif d['role_definition'].isspace() or d['role_assignments'].isspace():
                 results = FAILURE
             else:
                 results = ta_azure(d)

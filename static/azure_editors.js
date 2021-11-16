@@ -8,7 +8,7 @@ $(document).ready(function(){
     });
     editor_rd.setSize("100%", 400);
 
-    var ra = $("#roleassignment")[0];
+    var ra = $("#roleassignments")[0];
     var editor_ra = CodeMirror.fromTextArea(ra, {
         lineNumbers: true,
         autofocus: true,

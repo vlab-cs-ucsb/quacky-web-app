@@ -22,8 +22,8 @@ class AzureForm(forms.Form):
     role_definition = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'roledefinition'
     }))
-    role_assignment = forms.CharField(required = False, widget = forms.Textarea(attrs = {
-        'id': 'roleassignment'
+    role_assignments = forms.CharField(required = False, widget = forms.Textarea(attrs = {
+        'id': 'roleassignments'
     }))
     bound = forms.IntegerField(required = True, initial = 150, widget = forms.NumberInput(attrs = {
         'class': 'form-control',
