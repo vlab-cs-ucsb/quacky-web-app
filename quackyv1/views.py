@@ -82,3 +82,6 @@ def gcp(request):
     else:
         form = GCPForm()
         return render(request, 'gcp.html', {'form': form})
+
+def usage(request):
+    return render(request, 'usage.html')

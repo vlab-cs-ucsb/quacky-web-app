@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container" style="min-width: 1024px;">
+    <div class="mx-5 my-5">
+        <h3>Usage</h3>
+        <hr/>
+        <ul class="nav nav-pills mb-2">
+            <li class="nav-item">
+                <a class="nav-link active" href="#aws" data-toggle="tab" role="tab">AWS</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#azure" data-toggle="tab" role="tab">Azure</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#gcp" data-toggle="tab" role="tab">GCP</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="aws" role="tabpanel">
+                AWS
+            </div>
+            <div class="tab-pane" id="azure" role="tabpanel">
+                Azure
+            </div>
+            <div class="tab-pane" id="gcp" role="tabpanel">
+                <div class="alert alert-warning" role="alert">
+                    This is currently a <strong>beta</strong> feature.
+                  </div>
+            </div>
+    </div>
+</div>
+{% endblock %}
