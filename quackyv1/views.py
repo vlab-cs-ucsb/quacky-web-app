@@ -15,9 +15,9 @@ def aws(request):
             if not d['policy1'] or d['policy1'].isspace():
                 results = FAILURE
             elif d['policy2'] and not d['policy2'].isspace():
-                results = ta_aws_multi(d['policy1'], d['policy2'])
+                results = ta_aws_multi(d)
             else:
-                results = ta_aws_single(d['policy1'])
+                results = ta_aws_single(d)
             
             return render(request, 'aws.html', {
                 'form': form, 
@@ -43,7 +43,7 @@ def azure(request):
             elif d['role_definition'].isspace() or d['role_assignment'].isspace():
                 results = FAILURE
             else:
-                results = ta_azure(d['role_definition'], d['role_assignment'])
+                results = ta_azure(d)
 
             return render(request, 'azure.html', {
                 'form': form, 
@@ -69,7 +69,7 @@ def gcp(request):
             elif d['role'].isspace() or d['role_bindings'].isspace():
                 results = FAILURE
             else:
-                results = ta_gcp(d['role'], d['role_bindings'])
+                results = ta_gcp(d)
 
             return render(request, 'gcp.html', {
                 'form': form, 
