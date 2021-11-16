@@ -90,8 +90,13 @@ def ta_azure(d):
     # Create policy
     fname = str(int(round(time.time() * 1000)))
 
+    policy = azure2policy(d)
+
+    if not policy:
+        return FAILURE
+
     f = open(fname + '.json', 'w')
-    f.write(azure2policy(d)) # Convert Azure stuff to policy model
+    f.write(policy) # Convert Azure stuff to policy model
     f.close()
 
     global shell
@@ -122,8 +127,13 @@ def ta_gcp(d):
     # Create policy
     fname = str(int(round(time.time() * 1000)))
 
+    policy = gcp2policy(d)
+
+    if not policy:
+        return FAILURE
+
     f = open(fname + '.json', 'w')
-    f.write(gcp2policy(d)) # Convert GCP stuff to policy model
+    f.write(policy) # Convert GCP stuff to policy model
     f.close()
 
     global shell
@@ -151,65 +161,75 @@ def ta_gcp(d):
     return results
 
 def azure2policy(d):
-    role_definition = json.loads(d['role_definition'])
-    role_assignments = json.loads(d['role_assignments'])
+    # Too lazy to check for ill-formed role definitions/assignments
+    try:
+        role_definition = json.loads(d['role_definition'])
+        role_assignments = json.loads(d['role_assignments'])
 
-    statements = []
+        statements = []
+        
+        for ra in role_assignments:
+            for rd in role_definition:
+                if ra['properties']['roleDefinitionId'] == rd['Id']:
+                    
+                    statement = {
+                        'Id': rd['Id'],
+                        'Effect': 'Allow',
+                        'Principal': ra['properties']['principalId'],
+                        'Action': [a.lower() for a in rd['Actions'] + rd['DataActions']],
+                    }
 
-    for ra in role_assignments:
-        for rd in role_definition:
-            if ra['properties']['roleDefinitionId'] == rd['Id']:
-                
-                statement = {
-                    'Id': rd['Id'],
-                    'Effect': 'Allow',
-                    'Principal': ra['properties']['principalId'],
-                    'Action': [a.lower() for a in rd['Actions'] + rd['DataActions']],
-                }
+                    if len(rd['NotActions'] + rd['NotDataActions']) > 0:
+                        statement['NotAction']: [a.lower() for a in rd['NotActions'] + rd['NotDataActions']]
 
-                if len(rd['NotActions'] + rd['NotDataActions']) > 0:
-                    statement['NotAction']: [a.lower() for a in rd['NotActions'] + rd['NotDataActions']]
+                    if ra['scope'].count('/') <= 6:
+                        statement['Resource'] = ra['scope'].lower() + '/*'
+                    else:
+                        statement['Resource'] = ra['scope'].lower()
+                    
+                    if 'condition' in ra['properties']:
+                        statement['Condition'] = ra['properties']['condition']
 
-                if ra['scope'].count('/') <= 6:
-                    statement['Resource'] = ra['scope'].lower() + '/*'
-                else:
-                    statement['Resource'] = ra['scope'].lower()
-                
-                if 'condition' in ra['properties']:
-                    statement['Condition'] = ra['properties']['condition']
+                    statements.append(statement)
 
-                statements.append(statement)
-
-    return json.dumps({'Version': 'azure', 'Statement': statements}, indent=4)
+        return json.dumps({'Version': 'azure', 'Statement': statements}, indent=4)
+    
+    except:
+        return None
 
 def gcp2policy(d):
-    role = json.loads(d['role'])
-    role_bindings = json.loads(d['role_bindings'])
+    # Too lazy to check for ill-formed role (bindings)
+    try:
+        role = json.loads(d['role'])
+        role_bindings = json.loads(d['role_bindings'])
 
-    statements = []
+        statements = []
 
-    for rb in role_bindings['bindings']:
-        for rd in role:
-            if rb['role'] == rd['name']:
-                
-                statement = {
-                    'Id': rd['title'],
-                    'Effect': 'Allow',
-                    'Principal': rb['members'],
-                    'Action': [a.lower() for a in rd['includedPermissions']],
-                }
+        for rb in role_bindings['bindings']:
+            for rd in role:
+                if rb['role'] == rd['name']:
+                    
+                    statement = {
+                        'Id': rd['title'],
+                        'Effect': 'Allow',
+                        'Principal': rb['members'],
+                        'Action': [a.lower() for a in rd['includedPermissions']],
+                    }
 
-                if rb['level'].count('/') <= 2:
-                    statement['Resource'] = rb['level'].lower() + '/*'
-                else:
-                    statement['Resource'] = rb['level'].lower()
+                    if rb['level'].count('/') <= 2:
+                        statement['Resource'] = rb['level'].lower() + '/*'
+                    else:
+                        statement['Resource'] = rb['level'].lower()
 
-                if 'condition' in rb:
-                    statement['Condition'] = rb['condition']['expression'].lower()
+                    if 'condition' in rb:
+                        statement['Condition'] = rb['condition']['expression'].lower()
 
-                statements.append(statement)
+                    statements.append(statement)
 
-    return json.dumps({'Version': 'gcp', 'Statement': statements}, indent=4)
+        return json.dumps({'Version': 'gcp', 'Statement': statements}, indent=4)
+    
+    except:
+        return None
 
 def get_results(fname, bound, timeout):
     cmd = 'timeout -k {0}s {0}s'.format(timeout)
