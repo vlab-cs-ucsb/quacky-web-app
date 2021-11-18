@@ -1,6 +1,10 @@
+{% load static %}
 <div style="min-width: 1120px;">
     <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
-        <a class="navbar-brand" href="{% url 'aws' %}">Quacky Web App</a>
+        <a class="navbar-brand" href="{% url 'aws' %}">
+            Quacky
+            <img src="{% static 'quack.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
+        </a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
