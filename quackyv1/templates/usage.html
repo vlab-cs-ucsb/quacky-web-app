@@ -3,8 +3,6 @@
 {% block content %}
 <div class="container" style="min-width: 1024px;">
     <div class="mx-5 my-5">
-        <h3>Usage</h3>
-        <hr/>
         <ul class="nav nav-pills mb-2">
             <li class="nav-item">
                 <a class="nav-link active" href="#aws" data-toggle="tab" role="tab">AWS</a>
@@ -16,9 +14,10 @@
                 <a class="nav-link" href="#gcp" data-toggle="tab" role="tab">GCP</a>
             </li>
         </ul>
+        <br/>
         <div class="tab-content">
             <div class="tab-pane active" id="aws" role="tabpanel">
-                AWS
+                {% include 'usage_aws.html' %}
             </div>
             <div class="tab-pane" id="azure" role="tabpanel">
                 Azure
@@ -26,8 +25,54 @@
             <div class="tab-pane" id="gcp" role="tabpanel">
                 <div class="alert alert-warning" role="alert">
                     This is currently a <strong>beta</strong> feature.
-                  </div>
+                </div>
             </div>
+        </div>
+        <h3>Results</h3>
+        <hr/>
+        <ul>
+            <li>The <strong>Summary</strong> tab contains the following results:</li>
+            <ul>
+                <li>Status</li>
+                <div class="alert alert-info" role="alert">
+                    The status is either success, timeout, or failure. See "Troubleshooting" for more details.
+                </div>
+                <li>Relative permissiveness (if applicable)</li>
+                <div class="alert alert-info" role="alert">
+                    The relative permissiveness result can be one of the following:
+                    <ol>
+                        <li>Policy 1 is <strong>more permissive</strong> than Policy 2</li>
+                        <li>Policy 1 is <strong>less permissive</strong> than Policy 2</li>
+                        <li>Policy 1 is <strong>equivalent</strong> to Policy 2</li>
+                        <li>Policy 1 and Policy 2 <strong>do not subsume each other</strong></li>
+                    </ol>
+                </div>
+                <li>Satisfiability of SMT formula(e)</li>
+                <div class="alert alert-info" role="alert">
+                    The satisfiability result is either SAT (satisfiable) or UNSAT (unsatisfiable).
+                </div>
+                <li>Model counts of SMT formula(e) (if applicable).</li>
+                <div class="alert alert-info" role="alert">
+                    The model count is represented in scientific notation unless it is too large (i.e. for large bounds).
+                </div>
+            </ul>
+            <li>The <strong>Variables</strong> tab contains model counts (if applicable) for all variables in the SMT formula(e).</li>
+        </ul>
+        <h3>Troubleshooting</h3>
+        <hr/>
+        <ul>
+            <li>A <strong>timeout</strong> occurs when quantifying (relative) permissiveness takes longer than 30 seconds.</li>
+            <div class="alert alert-info" role="alert">
+                To mitigate timeouts, disable resource type constraints and/or enable action encoding.
+            </div>
+            <li>A <strong>failure</strong> occurs when</li>
+            <ul>
+                <li>There is a missing input that is required</li>
+                <li>There is an error while translating a policy (unlikely)</li>
+                <li>There is an error while model counting (unlikely)</li>
+                <li>There is a runtime error in the web app (unlikely)</li>
+            </ul>
+        </ul>
     </div>
 </div>
 {% endblock %}
