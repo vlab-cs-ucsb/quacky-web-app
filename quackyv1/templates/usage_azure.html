@@ -1,0 +1,46 @@
+<h3>Quantifying Permissiveness of a Single Policy</h3>
+<hr/>
+<ol>
+    <li>Input a role definition and Role Assignment 1</li>
+    <div class="alert alert-info" role="alert">
+        Example of a role definition:
+        <pre>[{<br/>    "AssignableScopes": [<br/>      "/"<br/>    ],<br/>    "Description": "View Virtual Machines in the portal and login as administrator",<br/>    "Id": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/1c0163c0-47e6-4577-8991-ea5c82e286e4",<br/>    "Name": "1c0163c0-47e6-4577-8991-ea5c82e286e4",<br/>    "Actions": [<br/>      "Microsoft.Network/publicIPAddresses/read",<br/>      "Microsoft.Network/virtualNetworks/read",<br/>      "Microsoft.Network/loadBalancers/read",<br/>      "Microsoft.Network/networkInterfaces/read",<br/>      "Microsoft.Compute/virtualMachines/*/read"<br/>    ],<br/>    "NotActions": [],<br/>    "DataActions": [<br/>      "Microsoft.Compute/virtualMachines/login/action",<br/>      "Microsoft.Compute/virtualMachines/loginAsAdmin/action"<br/>    ],<br/>    "NotDataActions": [],<br/>    "RoleName": "Virtual Machine Administrator Login",<br/>    "RoleType": "BuiltInRole",<br/>    "Type": "Microsoft.Authorization/roleDefinitions"<br/>},<br/>{<br/>  "AssignableScopes": [<br/>    "/"<br/>  ],<br/>  "Description": "View Virtual Machines in the portal and login as a regular user.",<br/>  "Id": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/fb879df8-f326-4884-b1cf-06f3ad86be52",<br/>  "Name": "fb879df8-f326-4884-b1cf-06f3ad86be52",<br/>  "Actions": [<br/>    "Microsoft.Network/publicIPAddresses/read",<br/>    "Microsoft.Network/virtualNetworks/read",<br/>    "Microsoft.Network/loadBalancers/read",<br/>    "Microsoft.Network/networkInterfaces/read",<br/>    "Microsoft.Compute/virtualMachines/*/read"<br/>  ],<br/>  "NotActions": [],<br/>  "DataActions": [<br/>    "Microsoft.Compute/virtualMachines/login/action"<br/>  ],<br/>  "NotDataActions": [],<br/>  "RoleName": "Virtual Machine User Login",<br/>  "RoleType": "BuiltInRole",<br/>  "Type": "Microsoft.Authorization/roleDefinitions"<br/>}</pre>
+        Note that multiple roles can be defined in a single JSON body. In this example, the roles defined are
+        <ul>
+            <li>Virtual Machine Administrator Login</li>
+            <li>Virtual Machine User Login</li>
+        </ul>
+        Please refer to <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles">Azure custom roles</a> for more information.
+    </div>
+    <div class="alert alert-info" role="alert">
+        Example of a role assignment:
+        <pre>[{<br/>    "scope": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/rgname",<br/>    "properties": {<br/>        "roleDefinitionId": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.Authorization/roleDefinitions/1c0163c0-47e6-4577-8991-ea5c82e286e4",<br/>        "principalId": "foo"<br/>    }<br/>}]</pre>
+        Note that there can be multiple role assignments in a single JSON body.
+        <br/>
+        Please refer to <a href="https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles">Azure custom roles</a> for more information.
+    </div>
+    <li>Specify a bound (the maximum string length/integer bitwidth for model counting)</li>
+    <div class="alert alert-info" role="alert">
+        Strings in Azure policies are long, so please use a bound >= 128 for best results.
+    </div>
+    <li><strong>(optional)</strong> Enable resource type constraints</li>
+    <div class="alert alert-info" role="alert">
+        Resource type constraints may
+        <ul>
+            <li>improve the precision of the model counts</li>
+            <li>increase the runtime (and may cause timeouts!)</li>
+        </ul>
+    </div>
+    <li><strong>(optional)</strong> Enable action encoding</li>
+    <div class="alert alert-info" role="alert">
+        Action encoding may reduce the runtime
+    </div>
+</ol>
+<h3>Quantifying Relative Permissiveness of Multiple Policies</h3>
+<hr/>
+<ol>
+    <li>Input Policy 1 and Policy 2</li>
+    <li>Specify a bound (the maximum string length/integer bitwidth for model counting)</li>
+    <li><strong>(optional)</strong> Enable resource type constraints</li>
+    <li><strong>(optional)</strong> Enable action encoding</li>
+</ol>

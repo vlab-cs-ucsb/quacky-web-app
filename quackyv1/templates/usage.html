@@ -15,12 +15,17 @@
             </li>
         </ul>
         <br/>
+        <strong>Quacky</strong> can 
+        <ol>
+            <li>quantify the permissiveness of a single policy, or</li>
+            <li>or quantify the <i>relative permissiveness</i> between two policies.</li>
+        </ol>
         <div class="tab-content">
             <div class="tab-pane active" id="aws" role="tabpanel">
                 {% include 'usage_aws.html' %}
             </div>
             <div class="tab-pane" id="azure" role="tabpanel">
-                Azure
+                {% include 'usage_azure.html' %}
             </div>
             <div class="tab-pane" id="gcp" role="tabpanel">
                 <div class="alert alert-warning" role="alert">
