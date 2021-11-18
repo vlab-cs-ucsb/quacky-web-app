@@ -19,11 +19,14 @@ class AWSForm(forms.Form):
     }))
 
 class AzureForm(forms.Form):
-    role_definition = forms.CharField(required = False, widget = forms.Textarea(attrs = {
-        'id': 'roledefinition'
+    role_definitions = forms.CharField(required = False, widget = forms.Textarea(attrs = {
+        'id': 'roledefinitions'
     }))
-    role_assignments = forms.CharField(required = False, widget = forms.Textarea(attrs = {
-        'id': 'roleassignments'
+    role_assignment1 = forms.CharField(required = False, widget = forms.Textarea(attrs = {
+        'id': 'roleassignment1'
+    }))
+    role_assignment2 = forms.CharField(required = False, widget = forms.Textarea(attrs = {
+        'id': 'roleassignment2'
     }))
     bound = forms.IntegerField(required = True, initial = 150, widget = forms.NumberInput(attrs = {
         'class': 'form-control',

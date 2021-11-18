@@ -86,7 +86,7 @@ def ta_aws_multi(d):
 
     return (results1, results2)
 
-def ta_azure(d):
+def ta_azure_single(d):
     # Create policy
     fname = str(int(round(time.time() * 1000)))
 
@@ -122,6 +122,51 @@ def ta_azure(d):
     out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
 
     return results
+
+def ta_azure_multi(d):
+    # Create policies
+    fname = str(int(round(time.time() * 1000)))
+
+    policies = azure2policy(d, multi=True)
+
+    if not policies:
+        return FAILURE
+
+    f = open(fname + '1.json', 'w')
+    f.write(policies[0])
+    f.close()
+
+    f = open(fname + '2.json', 'w')
+    f.write(policies[1])
+    f.close()
+
+    global shell
+    out, err = shell.mv(fname + '1.json', QUACKY_DIR)
+    out, err = shell.mv(fname + '2.json', QUACKY_DIR)
+
+    # Translate policies
+    cmd = 'python3 translate_policy.py -p1 {0}1.json -p2 {0}2.json -o {0}'.format(fname)
+
+    if d['constraints']:
+        cmd += ' -c'
+    if d['encoding']:
+        cmd += ' -e'
+
+    out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
+
+    # Solve SMT formulas
+    results1 = get_results(fname + '_1.smt2', d['bound'], 30)
+    results2 = get_results(fname + '_2.smt2', d['bound'], 30)
+
+    # Clean up
+    out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
+
+    return (results1, results2)
+
 
 def ta_gcp(d):
     # Create policy
@@ -160,42 +205,51 @@ def ta_gcp(d):
 
     return results
 
-def azure2policy(d):
+def azure2policy(d, multi=False):
     # Too lazy to check for ill-formed role definitions/assignments
     try:
-        role_definition = json.loads(d['role_definition'])
-        role_assignments = json.loads(d['role_assignments'])
+        role_definitions = json.loads(d['role_definitions'])
+        role_assignment1 = json.loads(d['role_assignment1'])
 
-        statements = []
-        
-        for ra in role_assignments:
-            for rd in role_definition:
-                if ra['properties']['roleDefinitionId'] == rd['Id']:
-                    
-                    statement = {
-                        'Id': rd['Id'],
-                        'Effect': 'Allow',
-                        'Principal': ra['properties']['principalId'],
-                        'Action': [a.lower() for a in rd['Actions'] + rd['DataActions']],
-                    }
-
-                    if len(rd['NotActions'] + rd['NotDataActions']) > 0:
-                        statement['NotAction']: [a.lower() for a in rd['NotActions'] + rd['NotDataActions']]
-
-                    if ra['scope'].count('/') <= 6:
-                        statement['Resource'] = ra['scope'].lower() + '/*'
-                    else:
-                        statement['Resource'] = ra['scope'].lower()
-                    
-                    if 'condition' in ra['properties']:
-                        statement['Condition'] = ra['properties']['condition']
-
-                    statements.append(statement)
-
-        return json.dumps({'Version': 'azure', 'Statement': statements}, indent=4)
+        if not multi:
+            return azure2policy_helper(role_definitions, role_assignment1)
+        else:
+            role_assignment2 = json.loads(d['role_assignment2'])
+            return (azure2policy_helper(role_definitions, role_assignment1),
+                    azure2policy_helper(role_definitions, role_assignment2))
     
     except:
-        return None
+       return None
+
+
+def azure2policy_helper(role_definitions, role_assignment):
+    statements = []
+        
+    for ra in role_assignment:
+        for rd in role_definitions:
+            if ra['properties']['roleDefinitionId'] == rd['Id']:
+                
+                statement = {
+                    'Id': rd['Id'],
+                    'Effect': 'Allow',
+                    'Principal': ra['properties']['principalId'],
+                    'Action': [a.lower() for a in rd['Actions'] + rd['DataActions']],
+                }
+
+                if len(rd['NotActions'] + rd['NotDataActions']) > 0:
+                    statement['NotAction']: [a.lower() for a in rd['NotActions'] + rd['NotDataActions']]
+
+                if ra['scope'].count('/') <= 6:
+                    statement['Resource'] = ra['scope'].lower() + '/*'
+                else:
+                    statement['Resource'] = ra['scope'].lower()
+                
+                if 'condition' in ra['properties']:
+                    statement['Condition'] = ra['properties']['condition']
+
+                statements.append(statement)
+        
+    return json.dumps({'Version': 'azure', 'Statement': statements}, indent=4)
 
 def gcp2policy(d):
     # Too lazy to check for ill-formed role (bindings)

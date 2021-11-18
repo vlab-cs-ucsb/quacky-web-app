@@ -37,13 +37,16 @@ def azure(request):
         
         if form.is_valid():
             d = form.cleaned_data
+            print(d)
 
-            if not d['role_definition'] or not d['role_assignments']:
+            if not d['role_definitions'] or not d['role_assignment1']:
                 results = FAILURE
-            elif d['role_definition'].isspace() or d['role_assignments'].isspace():
+            elif d['role_definitions'].isspace() or d['role_assignment1'].isspace():
                 results = FAILURE
+            elif d['role_assignment2'] and not d['role_assignment2'].isspace():
+                results = ta_azure_multi(d)
             else:
-                results = ta_azure(d)
+                results = ta_azure_single(d)
 
             return render(request, 'azure.html', {
                 'form': form, 
