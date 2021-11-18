@@ -231,11 +231,23 @@ def gcp2policy(d):
     except:
         return None
 
+def get_variables(fname):
+    formula = open(QUACKY_DIR + '/' + fname, 'r').read()
+    variables = []
+
+    for dtype in ['String', 'Int']:
+        pattern = 'declare-const ([A-Za-z0-9\.]+) {}'.format(dtype)
+        variables += re.findall(pattern, formula)
+
+    return variables
+
 def get_results(fname, bound, timeout):
+    variables = get_variables(fname)
+
     cmd = 'timeout -k {0}s {0}s'.format(timeout)
     cmd += ' abc -i {}'.format(fname)
     cmd += ' -bs {0} -bi {0}'.format(bound)
-    cmd += ' --count-tuple --count-variable principal,action,resource -v 0'
+    cmd += ' --count-tuple --count-variable {} -v 0'.format(','.join(variables))
     
     out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
