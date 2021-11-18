@@ -1,0 +1,21 @@
+<div class="alert alert-warning" role="alert">
+    These are currently in <strong>beta</strong> for GCP policies.
+</div>
+<h3>Quantifying Permissiveness of a Single Policy</h3>
+<hr/>
+<ol>
+    <li>Input a role and Role Binding 1</li>
+    <li>Specify a bound (the maximum string length/integer bitwidth for model counting)</li>
+    <li><strong>(optional)</strong> Enable resource type constraints</li>
+    <div class="alert alert-info" role="alert">
+        Resource type constraints may
+        <ul>
+            <li>improve the precision of the model counts</li>
+            <li>increase the runtime (and may cause timeouts!)</li>
+        </ul>
+    </div>
+    <li><strong>(optional)</strong> Enable action encoding</li>
+    <div class="alert alert-info" role="alert">
+        Action encoding may reduce the runtime
+    </div>
+</ol>
