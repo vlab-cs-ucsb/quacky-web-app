@@ -37,7 +37,6 @@ def azure(request):
         
         if form.is_valid():
             d = form.cleaned_data
-            print(d)
 
             if not d['role_definitions'] or not d['role_assignment1']:
                 results = FAILURE
