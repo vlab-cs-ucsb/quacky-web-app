@@ -1,10 +1,27 @@
 <div class="alert alert-warning" role="alert">
-    These are currently in <strong>beta</strong> for GCP policies.
+    These are currently in <strong>beta</strong> for GCP!
 </div>
 <h3>Quantifying Permissiveness of a Single Policy</h3>
 <hr/>
 <ol>
-    <li>Input a role and Role Binding 1</li>
+    <li>Input roles and Role Binding 1</li>
+    <div class="alert alert-info" role="alert">
+        Example of a role:
+        <pre>[{<br/>    "name": "roles/storage.objectAdmin",<br/>    "title": "Storage Object Admin",<br/>    "description": "Grants full control of objects, including listing, creating, viewing, and deleting objects.",<br/>    "includedPermissions": [<br/>        "storage.objects.*"<br/>    ]<br/>},<br/>{<br/>    "name": "roles/storage.objectViewer",<br/>    "title": "Storage Object Viewer",<br/>    "description": "Grants access to view objects and their metadata, excluding ACLs. Can also list the objects in a bucket.",<br/>    "includedPermissions": [<br/>        "storage.objects.get",<br/>        "storage.objects.list"<br/>    ]<br/>}]</pre>
+        Note that multiple roles can be defined in a single JSON body. In this example, the roles defined are
+        <ul>
+            <li>Storage Object Admin</li>
+            <li>Storage Object Viewer</li>
+        </ul>
+        Please refer to <a href="https://cloud.google.com/iam/docs/understanding-roles">understanding roles</a> for more information.
+    </div>
+    <div class="alert alert-info" role="alert">
+        Example of a role binding:
+        <pre>{<br/>    "bindings": [<br/>        {<br/>            "role": "roles/storage.objectAdmin",<br/>            "members": [<br/>                "user:mike@example.com",<br/>                "user:eve@example.com"<br/>            ],<br/>            "level": "myorg/myfolder/myproject"<br/>        }<br/>    ]<br/>}</pre>
+        Note that there can be multiple role bindings in a single JSON body.
+        <br/>
+        Please refer to <a href="https://cloud.google.com/iam/docs/reference/rest/v1/Policy">GCP IAM documentation</a> for more information.
+    </div>
     <li>Specify a bound (the maximum string length/integer bitwidth for model counting)</li>
     <li><strong>(optional)</strong> Enable resource type constraints</li>
     <div class="alert alert-info" role="alert">
@@ -14,8 +31,22 @@
             <li>increase the runtime (and may cause timeouts!)</li>
         </ul>
     </div>
+    <div class="alert alert-info" role="alert">
+        Our implementation of GCP resource type constraints currently does not support all actions and resource types
+    </div>
     <li><strong>(optional)</strong> Enable action encoding</li>
     <div class="alert alert-info" role="alert">
         Action encoding may reduce the runtime
     </div>
+    <div class="alert alert-info" role="alert">
+        Our implementation of GCP action encoding currently does not support all actions
+    </div>
+</ol>
+<h3>Quantifying Relative Permissiveness of Multiple Policies</h3>
+<hr/>
+<ol>
+    <li>Input roles, Role Bindings 1, and Role Bindings 2</li>
+    <li>Specify a bound (the maximum string length/integer bitwidth for model counting)</li>
+    <li><strong>(optional)</strong> Enable resource type constraints</li>
+    <li><strong>(optional)</strong> Enable action encoding</li>
 </ol>
