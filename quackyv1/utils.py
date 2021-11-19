@@ -167,8 +167,7 @@ def ta_azure_multi(d):
 
     return (results1, results2)
 
-
-def ta_gcp(d):
+def ta_gcp_single(d):
     # Create policy
     fname = str(int(round(time.time() * 1000)))
 
@@ -204,6 +203,50 @@ def ta_gcp(d):
     out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
 
     return results
+
+def ta_gcp_multi(d):
+    # Create policies
+    fname = str(int(round(time.time() * 1000)))
+
+    policies = gcp2policy(d, multi=True)
+
+    if not policies:
+        return FAILURE
+
+    f = open(fname + '1.json', 'w')
+    f.write(policies[0])
+    f.close()
+
+    f = open(fname + '2.json', 'w')
+    f.write(policies[1])
+    f.close()
+
+    global shell
+    out, err = shell.mv(fname + '1.json', QUACKY_DIR)
+    out, err = shell.mv(fname + '2.json', QUACKY_DIR)
+
+    # Translate policies
+    cmd = 'python3 translate_policy.py -p1 {0}1.json -p2 {0}2.json -o {0}'.format(fname)
+
+    if d['constraints']:
+        cmd += ' -c'
+    if d['encoding']:
+        cmd += ' -e'
+
+    out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
+
+    # Solve SMT formulas
+    results1 = get_results(fname + '_1.smt2', d['bound'], 30)
+    results2 = get_results(fname + '_2.smt2', d['bound'], 30)
+
+    # Clean up
+    out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+    out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
+
+    return (results1, results2)
 
 def azure2policy(d, multi=False):
     # Too lazy to check for ill-formed role definitions/assignments
@@ -251,39 +294,47 @@ def azure2policy_helper(role_definitions, role_assignment):
         
     return json.dumps({'Version': 'azure', 'Statement': statements}, indent=4)
 
-def gcp2policy(d):
+def gcp2policy(d, multi=False):
     # Too lazy to check for ill-formed role (bindings)
     try:
         role = json.loads(d['role'])
-        role_bindings = json.loads(d['role_bindings'])
+        role_bindings1 = json.loads(d['role_bindings1'])
 
-        statements = []
-
-        for rb in role_bindings['bindings']:
-            for rd in role:
-                if rb['role'] == rd['name']:
-                    
-                    statement = {
-                        'Id': rd['title'],
-                        'Effect': 'Allow',
-                        'Principal': rb['members'],
-                        'Action': [a.lower() for a in rd['includedPermissions']],
-                    }
-
-                    if rb['level'].count('/') <= 2:
-                        statement['Resource'] = rb['level'].lower() + '/*'
-                    else:
-                        statement['Resource'] = rb['level'].lower()
-
-                    if 'condition' in rb:
-                        statement['Condition'] = rb['condition']['expression'].lower()
-
-                    statements.append(statement)
-
-        return json.dumps({'Version': 'gcp', 'Statement': statements}, indent=4)
+        if not multi:
+            return gcp2policy_helper(role, role_bindings1)
+        else:
+            role_bindings2 = json.loads(d['role_bindings2'])
+            return (gcp2policy_helper(role, role_bindings1),
+                    gcp2policy_helper(role, role_bindings2))
     
     except:
         return None
+
+def gcp2policy_helper(role, role_bindings):
+    statements = []
+
+    for rb in role_bindings['bindings']:
+        for rd in role:
+            if rb['role'] == rd['name']:
+                
+                statement = {
+                    'Id': rd['title'],
+                    'Effect': 'Allow',
+                    'Principal': rb['members'],
+                    'Action': [a.lower() for a in rd['includedPermissions']],
+                }
+
+                if rb['level'].count('/') <= 2:
+                    statement['Resource'] = rb['level'].lower() + '/*'
+                else:
+                    statement['Resource'] = rb['level'].lower()
+
+                if 'condition' in rb:
+                    statement['Condition'] = rb['condition']['expression'].lower()
+
+                statements.append(statement)
+
+    return json.dumps({'Version': 'gcp', 'Statement': statements}, indent=4)
 
 def get_variables(fname):
     formula = open(QUACKY_DIR + '/' + fname, 'r').read()

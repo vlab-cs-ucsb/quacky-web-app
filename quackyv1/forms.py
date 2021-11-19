@@ -43,8 +43,11 @@ class GCPForm(forms.Form):
     role = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'role'
     }))
-    role_bindings = forms.CharField(required = False, widget = forms.Textarea(attrs = {
-        'id': 'rolebindings'
+    role_bindings1 = forms.CharField(required = False, widget = forms.Textarea(attrs = {
+        'id': 'rolebindings1'
+    }))
+    role_bindings2 = forms.CharField(required = False, widget = forms.Textarea(attrs = {
+        'id': 'rolebindings2'
     }))
     bound = forms.IntegerField(required = True, initial = 150, widget = forms.NumberInput(attrs = {
         'class': 'form-control',

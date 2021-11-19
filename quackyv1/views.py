@@ -67,12 +67,14 @@ def gcp(request):
         if form.is_valid():
             d = form.cleaned_data
 
-            if not d['role'] or not d['role_bindings']:
+            if not d['role'] or not d['role_bindings1']:
                 results = FAILURE
-            elif d['role'].isspace() or d['role_bindings'].isspace():
+            elif d['role'].isspace() or d['role_bindings1'].isspace():
                 results = FAILURE
+            elif d['role_bindings2'] and not d['role_bindings2'].isspace():
+                results = ta_gcp_multi(d)
             else:
-                results = ta_gcp(d)
+                results = ta_gcp_single(d)
 
             return render(request, 'gcp.html', {
                 'form': form, 
