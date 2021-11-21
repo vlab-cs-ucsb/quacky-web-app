@@ -1,3 +1,4 @@
+import decimal
 import json
 import re
 import sys
@@ -324,16 +325,13 @@ def get_results(fname, bound, timeout):
         results['status'] = 'Failure'
     
     if 'count' in results.keys() and int(results['count']) > sys.maxsize:
-        try:
-            results['count'] = format(int(results['count']), '9.6e')
-        except:
-            pass
+        results['count'] = format(decimal.Decimal(results['count']), '.3e')
     
     if 'var' in results.keys():
         for var in results['var'].keys():
             if int(results['var'][var]['count']) > sys.maxsize:
                 try:
-                    results['var'][var]['count'] = format(int(results['var'][var]['count']), '9.6e')
+                    results['var'][var]['count'] = format(decimal.Decimal(results['var'][var]['count']), '.3e')
                 except:
                     pass
 
