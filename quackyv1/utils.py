@@ -17,144 +17,168 @@ FAILURE = {
 }
 
 def ta_aws_single(d):
-    # Create policy
-    fname = str(int(round(time.time() * 1000)))
-    write_single_policy(fname, d['policy1'])
+    try:
+        # Create policy
+        fname = str(int(round(time.time() * 1000)))
+        write_single_policy(fname, d['policy1'])
 
-    # Translate policy
-    write_single_formula(fname, d)
+        # Translate policy
+        write_single_formula(fname, d)
 
-    # Solve SMT formula
-    results = get_results(fname + '_1.smt2', d['bound'], 30)
-    results['is_single'] = True
+        # Solve SMT formula
+        results = get_results(fname + '_1.smt2', d['bound'], 30)
+        results['is_single'] = True
 
-    # Clean up
-    out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+        # Clean up
+        out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
 
-    return results
+        return results
+
+    except:
+        return FAILURE
 
 def ta_aws_multi(d):
-    # Create policies
-    fname = str(int(round(time.time() * 1000)))
-    write_multi_policies(fname, d['policy1'], d['policy2'])
+    try:
+        # Create policies
+        fname = str(int(round(time.time() * 1000)))
+        write_multi_policies(fname, d['policy1'], d['policy2'])
 
-    # Translate policies
-    write_multi_formulas(fname, d)
+        # Translate policies
+        write_multi_formulas(fname, d)
 
-    # Solve SMT formulas
-    results1 = get_results(fname + '_1.smt2', d['bound'], 30)
-    results2 = get_results(fname + '_2.smt2', d['bound'], 30)
+        # Solve SMT formulas
+        results1 = get_results(fname + '_1.smt2', d['bound'], 30)
+        results2 = get_results(fname + '_2.smt2', d['bound'], 30)
 
-    # Clean up
-    out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
+        # Clean up
+        out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
 
-    return (results1, results2)
+        return (results1, results2)
+
+    except:
+        return FAILURE
 
 def ta_azure_single(d):
-    # Create policy
-    fname = str(int(round(time.time() * 1000)))
-    policy = azure2policy(d)
+    try:
+        # Create policy
+        fname = str(int(round(time.time() * 1000)))
+        policy = azure2policy(d)
 
-    if not policy:
+        if not policy:
+            return FAILURE
+
+        write_single_policy(fname, policy)
+
+        # Translate policy
+        write_single_formula(fname, d)
+
+        # Solve SMT formula
+        results = get_results(fname + '_1.smt2', d['bound'], 30)
+        results['is_single'] = True
+
+        # Clean up
+        out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+
+        return results
+
+    except:
         return FAILURE
-
-    write_single_policy(fname, policy)
-
-    # Translate policy
-    write_single_formula(fname, d)
-
-    # Solve SMT formula
-    results = get_results(fname + '_1.smt2', d['bound'], 30)
-    results['is_single'] = True
-
-    # Clean up
-    out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
-
-    return results
 
 def ta_azure_multi(d):
-    # Create policies
-    fname = str(int(round(time.time() * 1000)))
-    policies = azure2policy(d, multi=True)
+    try:
+        # Create policies
+        fname = str(int(round(time.time() * 1000)))
+        policies = azure2policy(d, multi=True)
 
-    if not policies:
+        if not policies:
+            return FAILURE
+
+        write_multi_policies(fname, policies[0], policies[1])
+
+        # Translate policies
+        write_multi_formulas(fname, d)
+
+        # Solve SMT formulas
+        results1 = get_results(fname + '_1.smt2', d['bound'], 30)
+        results2 = get_results(fname + '_2.smt2', d['bound'], 30)
+
+        # Clean up
+        out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
+
+        return (results1, results2)
+
+    except:
         return FAILURE
-
-    write_multi_policies(fname, policies[0], policies[1])
-
-    # Translate policies
-    write_multi_formulas(fname, d)
-
-    # Solve SMT formulas
-    results1 = get_results(fname + '_1.smt2', d['bound'], 30)
-    results2 = get_results(fname + '_2.smt2', d['bound'], 30)
-
-    # Clean up
-    out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
-
-    return (results1, results2)
 
 def ta_gcp_single(d):
-    # Create policy
-    fname = str(int(round(time.time() * 1000)))
-    policy = gcp2policy(d)
+    try:
+        # Create policy
+        fname = str(int(round(time.time() * 1000)))
+        policy = gcp2policy(d)
 
-    if not policy:
+        if not policy:
+            return FAILURE
+
+        write_single_policy(fname, policy)
+
+        # Translate policy
+        write_single_formula(fname, d)
+
+        # Solve SMT formula
+        results = get_results(fname + '_1.smt2', d['bound'], 30)
+        results['is_single'] = True
+
+        # Clean up
+        out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+
+        return results
+    
+    except:
         return FAILURE
-
-    write_single_policy(fname, policy)
-
-    # Translate policy
-    write_single_formula(fname, d)
-
-    # Solve SMT formula
-    results = get_results(fname + '_1.smt2', d['bound'], 30)
-    results['is_single'] = True
-
-    # Clean up
-    out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
-
-    return results
 
 def ta_gcp_multi(d):
-    # Create policies
-    fname = str(int(round(time.time() * 1000)))
-    policies = gcp2policy(d, multi=True)
+    try:
+        # Create policies
+        fname = str(int(round(time.time() * 1000)))
+        policies = gcp2policy(d, multi=True)
 
-    if not policies:
+        if not policies:
+            return FAILURE
+
+        write_multi_policies(fname, policies[0], policies[1])
+
+        # Translate policies
+        write_multi_formulas(fname, d)
+
+        # Solve SMT formulas
+        results1 = get_results(fname + '_1.smt2', d['bound'], 30)
+        results2 = get_results(fname + '_2.smt2', d['bound'], 30)
+
+        # Clean up
+        out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
+
+        return (results1, results2)
+
+    except:
         return FAILURE
-
-    write_multi_policies(fname, policies[0], policies[1])
-
-    # Translate policies
-    write_multi_formulas(fname, d)
-
-    # Solve SMT formulas
-    results1 = get_results(fname + '_1.smt2', d['bound'], 30)
-    results2 = get_results(fname + '_2.smt2', d['bound'], 30)
-
-    # Clean up
-    out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
-    out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
-
-    return (results1, results2)
 
 def azure2policy(d, multi=False):
     # Too lazy to check for ill-formed role definitions/assignments
