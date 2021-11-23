@@ -18,7 +18,11 @@
     <div class="alert alert-info" role="alert">
         Example of a role binding:
         <pre>{<br/>    "bindings": [<br/>        {<br/>            "role": "roles/storage.objectAdmin",<br/>            "members": [<br/>                "user:mike@example.com",<br/>                "user:eve@example.com"<br/>            ],<br/>            "level": "myorg/myfolder/myproject"<br/>        }<br/>    ]<br/>}</pre>
-        Note that there can be multiple role bindings in a single JSON body.
+        Note that 
+        <ul>
+            <li>there can be multiple role bindings in a single JSON body.</li>
+            <li>there must be a "level" key in each binding. This is not in the GCP role bindings specification!</li>
+        </ul>
         <br/>
         Please refer to <a href="https://cloud.google.com/iam/docs/reference/rest/v1/Policy">GCP IAM documentation</a> for more information.
     </div>
