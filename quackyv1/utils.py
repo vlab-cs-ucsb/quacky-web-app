@@ -17,6 +17,16 @@ FAILURE = {
 }
 
 def ta_aws_single(d):
+    """
+    Translate and analyze a single AWS policy
+
+    Args:
+        d (dict): form input
+
+    Returns:
+        dict: results
+    """
+
     try:
         # Create policy
         fname = str(int(round(time.time() * 1000)))
@@ -47,6 +57,16 @@ def ta_aws_single(d):
         return FAILURE
 
 def ta_aws_multi(d):
+    """
+    Translate and analyze multiple AWS policies
+
+    Args:
+        d (dict): form input
+
+    Returns:
+        dict: results
+    """
+
     try:
         # Create policies
         fname = str(int(round(time.time() * 1000)))
@@ -80,6 +100,16 @@ def ta_aws_multi(d):
         return FAILURE
 
 def ta_azure_single(d):
+    """
+    Translate and analyze a single Azure role definition/role assignment.
+
+    Args:
+        d (dict): form input
+
+    Returns:
+        dict: results
+    """
+
     try:
         # Create policy
         fname = str(int(round(time.time() * 1000)))
@@ -111,6 +141,16 @@ def ta_azure_single(d):
         return FAILURE
 
 def ta_azure_multi(d):
+    """
+    Translate and analyze multiple Azure role definitions/role assignments.
+
+    Args:
+        d (dict): form input
+
+    Returns:
+        dict: results
+    """
+
     try:
         # Create policies
         fname = str(int(round(time.time() * 1000)))
@@ -145,6 +185,16 @@ def ta_azure_multi(d):
         return FAILURE
 
 def ta_gcp_single(d):
+    """
+    Translate and analyze a single GCP role/role binding.
+
+    Args:
+        d (dict): form input
+
+    Returns:
+        dict: results
+    """
+
     try:
         # Create policy
         fname = str(int(round(time.time() * 1000)))
@@ -176,6 +226,16 @@ def ta_gcp_single(d):
         return FAILURE
 
 def ta_gcp_multi(d):
+    """
+    Translate and analyze multiple GCP roles/role bindings.
+
+    Args:
+        d (dict): form input
+
+    Returns:
+        dict: results
+    """
+
     try:
         # Create policies
         fname = str(int(round(time.time() * 1000)))
@@ -210,6 +270,18 @@ def ta_gcp_multi(d):
         return FAILURE
 
 def write_file(fname, body):
+    """
+    Write a file to disk with content.
+
+    Args:
+        fname (str): file name
+        body (str): file content
+
+    Returns:
+        str: stdout dump
+        str: stderr dump
+    """
+
     f = open(fname + '.json', 'w')
     f.write(body)
     f.close()
@@ -220,6 +292,16 @@ def write_file(fname, body):
     return out, err
 
 def get_variables(fname):
+    """
+    Infer variables from SMT formula.
+
+    Args:
+        fname (str): file name of SMT formula
+
+    Returns:
+        list: variables
+    """
+
     formula = open(QUACKY_DIR + '/' + fname, 'r').read()
     variables = []
 
@@ -230,6 +312,18 @@ def get_variables(fname):
     return variables
 
 def get_results(fname, bound, timeout):
+    """
+    Run ABC and get results.
+
+    Args:
+        fname ([str): file name
+        bound (str): bound
+        timeout (int): timeout, in seconds
+
+    Returns:
+        dict: results
+    """
+
     variables = get_variables(fname)
 
     cmd = 'timeout -k {0}s {0}s'.format(timeout)
@@ -264,8 +358,18 @@ def get_results(fname, bound, timeout):
 
     return results
 
-# Parse ABC output (courtesy of VLab)
 def get_abc_result_line(out, err):
+    """
+    Parse ABC results from stdout and stderr (from VLab)
+    
+    Args:
+        out (str): stdout dump
+        err (str): stderr dump
+    
+    Returns:
+        dict: ABC results
+    """
+
     lines = err.strip(' \t\n\r,').split('\n')
     var_results = {}
     results = {}

@@ -1,5 +1,6 @@
 from django import forms
 
+# Form for AWS policy input
 class AWSForm(forms.Form):
     policy1 = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'policy1'
@@ -18,6 +19,7 @@ class AWSForm(forms.Form):
         'class': 'form-check-input'
     }))
 
+# Form for Azure role definitions/role assignments input
 class AzureForm(forms.Form):
     role_definitions = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'roledefinitions'
@@ -39,6 +41,7 @@ class AzureForm(forms.Form):
         'class': 'form-check-input'
     }))
 
+# Form for GCP role/role bindings input
 class GCPForm(forms.Form):
     role = forms.CharField(required = False, widget = forms.Textarea(attrs = {
         'id': 'role'

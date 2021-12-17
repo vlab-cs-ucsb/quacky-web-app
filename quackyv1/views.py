@@ -2,16 +2,21 @@ from django.shortcuts import render
 from .forms import *
 from .utils import *
 
+# AWS analysis view
 def aws(request):
+    # POST request
     if request.method == 'POST':
         form = AWSForm(request.POST)
         
+        # form valid
         if form.is_valid():
             d = form.cleaned_data
             
             # Note: the emptiness check on the textareas is being done here
             # because CodeMirror would not cooperate if I set required=True
             # in forms.py
+
+            # dispatch to handler function
             if not d['policy1'] or d['policy1'].isspace():
                 results = FAILURE
             elif d['policy2'] and not d['policy2'].isspace():
@@ -19,18 +24,22 @@ def aws(request):
             else:
                 results = ta_aws_single(d)
             
+            # render filled form and results
             return render(request, 'aws.html', {
                 'form': form, 
                 'results': results
             })
 
-        else:   
+        # form invalid; render filled form but not results
+        else:
             return render(request, 'aws.html', {'form': form})
 
+    # GET request; render fresh form
     else:
         form = AWSForm()
         return render(request, 'aws.html', {'form': form})
 
+# Azure analysis view
 def azure(request):
     if request.method == 'POST':
         form = AzureForm(request.POST)
@@ -59,6 +68,7 @@ def azure(request):
         form = AzureForm()
         return render(request, 'azure.html', {'form': form})
 
+# GCP analysis view
 def gcp(request):
     if request.method == 'POST':
         form = GCPForm(request.POST)
