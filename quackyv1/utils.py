@@ -208,15 +208,14 @@ def azure2policy_helper(role_definitions, role_assignment):
                     'Effect': 'Allow',
                     'Principal': ra['properties']['principalId'],
                     'Action': [a.lower() for a in rd['Actions'] + rd['DataActions']],
+                    'Resource': [ra['scope'].lower() + '/*']
                 }
 
                 if len(rd['NotActions'] + rd['NotDataActions']) > 0:
                     statement['NotAction']: [a.lower() for a in rd['NotActions'] + rd['NotDataActions']]
 
-                if ra['scope'].count('/') <= 6:
-                    statement['Resource'] = ra['scope'].lower() + '/*'
-                else:
-                    statement['Resource'] = ra['scope'].lower()
+                if ra['scope'].count('/') > 6:
+                    statement['Resource'].append(ra['scope'].lower())
                 
                 if 'condition' in ra['properties']:
                     statement['Condition'] = ra['properties']['condition']
@@ -253,12 +252,11 @@ def gcp2policy_helper(role, role_bindings):
                     'Effect': 'Allow',
                     'Principal': rb['members'],
                     'Action': [a.lower() for a in rd['includedPermissions']],
+                    'Resource': [rb['level'].lower() + '/*']
                 }
 
-                if rb['level'].count('/') <= 2:
-                    statement['Resource'] = rb['level'].lower() + '/*'
-                else:
-                    statement['Resource'] = rb['level'].lower()
+                if rb['level'].count('/') > 2:
+                    statement['Resource'].append(rb['level'].lower())
 
                 if 'condition' in rb:
                     statement['Condition'] = rb['condition']['expression'].lower()
