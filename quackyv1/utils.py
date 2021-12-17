@@ -20,10 +20,16 @@ def ta_aws_single(d):
     try:
         # Create policy
         fname = str(int(round(time.time() * 1000)))
-        write_single_policy(fname, d['policy1'])
+        write_file(fname, d['policy1'])
 
         # Translate policy
-        write_single_formula(fname, d)
+        cmd = 'python3 translator.py -p1 {0}.json -o {0}'.format(fname)
+        if d['constraints']:
+            cmd += ' -c'
+        if d['encoding']:
+            cmd += ' -e'
+
+        out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
         # Solve SMT formula
         results = get_results(fname + '_1.smt2', d['bound'], 30)
@@ -36,17 +42,25 @@ def ta_aws_single(d):
 
         return results
 
-    except:
+    except Exception as e:
+        print(e)
         return FAILURE
 
 def ta_aws_multi(d):
     try:
         # Create policies
         fname = str(int(round(time.time() * 1000)))
-        write_multi_policies(fname, d['policy1'], d['policy2'])
+        write_file(fname + '1', d['policy1'])
+        write_file(fname + '2', d['policy2'])
 
         # Translate policies
-        write_multi_formulas(fname, d)
+        cmd = 'python3 translator.py -p1 {0}1.json -p2 {0}2.json -o {0}'.format(fname)
+        if d['constraints']:
+            cmd += ' -c'
+        if d['encoding']:
+            cmd += ' -e'
+
+        out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
         # Solve SMT formulas
         results1 = get_results(fname + '_1.smt2', d['bound'], 30)
@@ -61,22 +75,25 @@ def ta_aws_multi(d):
 
         return (results1, results2)
 
-    except:
+    except Exception as e:
+        print(e)
         return FAILURE
 
 def ta_azure_single(d):
     try:
         # Create policy
         fname = str(int(round(time.time() * 1000)))
-        policy = azure2policy(d)
-
-        if not policy:
-            return FAILURE
-
-        write_single_policy(fname, policy)
+        write_file(fname + 'rd', d['role_definitions'])
+        write_file(fname + 'ra1', d['role_assignment1'])
 
         # Translate policy
-        write_single_formula(fname, d)
+        cmd = 'python3 translator.py -rd {0}rd.json -ra1 {0}ra1.json -o {0}'.format(fname)
+        if d['constraints']:
+            cmd += ' -c'
+        if d['encoding']:
+            cmd += ' -e'
+
+        out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
         # Solve SMT formula
         results = get_results(fname + '_1.smt2', d['bound'], 30)
@@ -89,22 +106,26 @@ def ta_azure_single(d):
 
         return results
 
-    except:
+    except Exception as e:
+        print(e)
         return FAILURE
 
 def ta_azure_multi(d):
     try:
         # Create policies
         fname = str(int(round(time.time() * 1000)))
-        policies = azure2policy(d, multi=True)
-
-        if not policies:
-            return FAILURE
-
-        write_multi_policies(fname, policies[0], policies[1])
+        write_file(fname + 'rd', d['role_definitions'])
+        write_file(fname + 'ra1', d['role_assignment1'])
+        write_file(fname + 'ra2', d['role_assignment2'])
 
         # Translate policies
-        write_multi_formulas(fname, d)
+        cmd = 'python3 translator.py -rd {0}rd.json -ra1 {0}ra1.json -ra2 {0}ra2.json -o {0}'.format(fname)
+        if d['constraints']:
+            cmd += ' -c'
+        if d['encoding']:
+            cmd += ' -e'
+
+        out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
         # Solve SMT formulas
         results1 = get_results(fname + '_1.smt2', d['bound'], 30)
@@ -119,22 +140,25 @@ def ta_azure_multi(d):
 
         return (results1, results2)
 
-    except:
+    except Exception as e:
+        print(e)
         return FAILURE
 
 def ta_gcp_single(d):
     try:
         # Create policy
         fname = str(int(round(time.time() * 1000)))
-        policy = gcp2policy(d)
-
-        if not policy:
-            return FAILURE
-
-        write_single_policy(fname, policy)
+        write_file(fname + 'r', d['role'])
+        write_file(fname + 'rb1', d['role_bindings1'])
 
         # Translate policy
-        write_single_formula(fname, d)
+        cmd = 'python3 translator.py -r {0}r.json -rb1 {0}rb1.json -o {0}'.format(fname)
+        if d['constraints']:
+            cmd += ' -c'
+        if d['encoding']:
+            cmd += ' -e'
+
+        out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
         # Solve SMT formula
         results = get_results(fname + '_1.smt2', d['bound'], 30)
@@ -147,22 +171,26 @@ def ta_gcp_single(d):
 
         return results
     
-    except:
+    except Exception as e:
+        print(e)
         return FAILURE
 
 def ta_gcp_multi(d):
     try:
         # Create policies
         fname = str(int(round(time.time() * 1000)))
-        policies = gcp2policy(d, multi=True)
-
-        if not policies:
-            return FAILURE
-
-        write_multi_policies(fname, policies[0], policies[1])
+        write_file(fname + 'r', d['role'])
+        write_file(fname + 'rb1', d['role_bindings1'])
+        write_file(fname + 'rb2', d['role_bindings2'])
 
         # Translate policies
-        write_multi_formulas(fname, d)
+        cmd = 'python3 translator.py -r {0}r.json -rb1 {0}rb1.json -rb2 {0}rb2.json -o {0}'.format(fname)
+        if d['constraints']:
+            cmd += ' -c'
+        if d['encoding']:
+            cmd += ' -e'
+
+        out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
         # Solve SMT formulas
         results1 = get_results(fname + '_1.smt2', d['bound'], 30)
@@ -177,140 +205,17 @@ def ta_gcp_multi(d):
 
         return (results1, results2)
 
-    except:
+    except Exception as e:
+        print(e)
         return FAILURE
 
-def azure2policy(d, multi=False):
-    # Too lazy to check for ill-formed role definitions/assignments
-    try:
-        role_definitions = json.loads(d['role_definitions'])
-        role_assignment1 = json.loads(d['role_assignment1'])
-
-        if not multi:
-            return azure2policy_helper(role_definitions, role_assignment1)
-        else:
-            role_assignment2 = json.loads(d['role_assignment2'])
-            return (azure2policy_helper(role_definitions, role_assignment1),
-                    azure2policy_helper(role_definitions, role_assignment2))
-    
-    except:
-       return None
-
-def azure2policy_helper(role_definitions, role_assignment):
-    statements = []
-        
-    for ra in role_assignment:
-        for rd in role_definitions:
-            if ra['properties']['roleDefinitionId'] == rd['Id']:
-                
-                statement = {
-                    'Id': rd['Id'],
-                    'Effect': 'Allow',
-                    'Principal': ra['properties']['principalId'],
-                    'Action': [a.lower() for a in rd['Actions'] + rd['DataActions']],
-                    'Resource': [ra['scope'].lower() + '/*']
-                }
-
-                if len(rd['NotActions'] + rd['NotDataActions']) > 0:
-                    statement['NotAction']: [a.lower() for a in rd['NotActions'] + rd['NotDataActions']]
-
-                if ra['scope'].count('/') > 6:
-                    statement['Resource'].append(ra['scope'].lower())
-                
-                if 'condition' in ra['properties']:
-                    statement['Condition'] = ra['properties']['condition']
-
-                statements.append(statement)
-        
-    return json.dumps({'Version': 'azure', 'Statement': statements}, indent=4)
-
-def gcp2policy(d, multi=False):
-    # Too lazy to check for ill-formed role (bindings)
-    try:
-        role = json.loads(d['role'])
-        role_bindings1 = json.loads(d['role_bindings1'])
-
-        if not multi:
-            return gcp2policy_helper(role, role_bindings1)
-        else:
-            role_bindings2 = json.loads(d['role_bindings2'])
-            return (gcp2policy_helper(role, role_bindings1),
-                    gcp2policy_helper(role, role_bindings2))
-    
-    except:
-        return None
-
-def gcp2policy_helper(role, role_bindings):
-    statements = []
-
-    for rb in role_bindings['bindings']:
-        for rd in role:
-            if rb['role'] == rd['name']:
-                
-                statement = {
-                    'Id': rd['title'],
-                    'Effect': 'Allow',
-                    'Principal': rb['members'],
-                    'Action': [a.lower() for a in rd['includedPermissions']],
-                    'Resource': [rb['level'].lower() + '/*']
-                }
-
-                if rb['level'].count('/') > 2:
-                    statement['Resource'].append(rb['level'].lower())
-
-                if 'condition' in rb:
-                    statement['Condition'] = rb['condition']['expression'].lower()
-
-                statements.append(statement)
-
-    return json.dumps({'Version': 'gcp', 'Statement': statements}, indent=4)
-
-def write_single_policy(fname, policy):
+def write_file(fname, body):
     f = open(fname + '.json', 'w')
-    f.write(policy)
+    f.write(body)
     f.close()
 
     global shell
     out, err = shell.mv(fname + '.json', QUACKY_DIR)
-
-    return out, err
-
-def write_multi_policies(fname, policy1, policy2):
-    f = open(fname + '1.json', 'w')
-    f.write(policy1)
-    f.close()
-
-    f = open(fname + '2.json', 'w')
-    f.write(policy2)
-    f.close()
-
-    global shell
-    out, err = shell.mv(fname + '1.json', QUACKY_DIR)
-    out, err = shell.mv(fname + '2.json', QUACKY_DIR)
-
-    return out, err
-
-def write_single_formula(fname, d):
-    cmd = 'python3 translate_policy.py -p1 {0}.json -o {0}'.format(fname)
-
-    if d['constraints']:
-        cmd += ' -c'
-    if d['encoding']:
-        cmd += ' -e'
-
-    out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
-
-    return out, err
-
-def write_multi_formulas(fname, d):
-    cmd = 'python3 translate_policy.py -p1 {0}1.json -p2 {0}2.json -o {0}'.format(fname)
-
-    if d['constraints']:
-        cmd += ' -c'
-    if d['encoding']:
-        cmd += ' -e'
-
-    out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
     return out, err
 
