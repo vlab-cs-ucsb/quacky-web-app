@@ -130,7 +130,8 @@ def ta_azure_single(d):
         results['is_single'] = True
 
         # Clean up
-        out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}rd.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}ra1.json'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
 
@@ -172,8 +173,9 @@ def ta_azure_multi(d):
         results2 = get_results(fname + '_2.smt2', d['bound'], 30)
 
         # Clean up
-        out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
-        out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}rd.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}ra1.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}ra2.json'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
@@ -215,7 +217,8 @@ def ta_gcp_single(d):
         results['is_single'] = True
 
         # Clean up
-        out, err = shell.rm('{}/{}.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}r.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}rb1.json'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
 
@@ -257,8 +260,9 @@ def ta_gcp_multi(d):
         results2 = get_results(fname + '_2.smt2', d['bound'], 30)
 
         # Clean up
-        out, err = shell.rm('{}/{}1.json'.format(QUACKY_DIR, fname))
-        out, err = shell.rm('{}/{}2.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}r.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}rb1.json'.format(QUACKY_DIR, fname))
+        out, err = shell.rm('{}/{}rb2.json'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_0.smt2'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_1.smt2'.format(QUACKY_DIR, fname))
         out, err = shell.rm('{}/{}_2.smt2'.format(QUACKY_DIR, fname))
