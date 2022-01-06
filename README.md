@@ -16,7 +16,8 @@ This is a Django web application for [Quacky](https://vlab.cs.ucsb.edu/quacky/).
 
 ## Prerequisites
 - Python 3
-- [ABC](https://github.com/vlab-cs-ucsb/ABC)
+- [Quacky](https://vlab.cs.ucsb.edu/quacky/)
+  - [ABC](https://github.com/vlab-cs-ucsb/ABC)
 
 ## Download
 <pre>
