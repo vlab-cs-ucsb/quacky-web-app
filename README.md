@@ -15,7 +15,6 @@ This is a Django web application for [Quacky](https://github.com/vlab-cs-ucsb/qu
 - `static/jquery-3.5.1.min.js` contains source code for jQuery
 
 ## Prerequisites
-- Python 3.8 or higher
 - [Quacky](https://vlab.cs.ucsb.edu/quacky/)
 
 ## Download
@@ -25,11 +24,6 @@ cd quacky-web-app
 ```
 
 ## Setup
-Install Git and Pip 3.
-```
-sudo apt install git python3-pip # replace "apt" with your package manager
-```
-
 Install prerequisites from `requirements.txt` using `pip3`.
 ```
 sudo pip3 install -r requirements.txt
