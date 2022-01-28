@@ -333,7 +333,7 @@ def get_results(fname, bound, timeout):
     cmd = 'timeout -k {0}s {0}s'.format(timeout)
     cmd += ' abc -i {}'.format(fname)
     cmd += ' -bs {0} -bi {0}'.format(bound)
-    cmd += ' --count-tuple --count-variable {} -v 0'.format(','.join(variables))
+    cmd += ' --precise --count-tuple --count-variable {} -v 0'.format(','.join(variables))
     
     out, err = shell.runcmd(cmd, cwd=QUACKY_DIR)
 
