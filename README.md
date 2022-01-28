@@ -1,7 +1,7 @@
 
 # Quacky Web App
 
-This is a Django web application for [Quacky](https://vlab.cs.ucsb.edu/quacky/).
+This is a Django web application for [Quacky](https://github.com/vlab-cs-ucsb/quacky/).
 
 ## Contents
 - `QuackyWebApp/settings.py` contains settings
@@ -15,26 +15,23 @@ This is a Django web application for [Quacky](https://vlab.cs.ucsb.edu/quacky/).
 - `static/jquery-3.5.1.min.js` contains source code for jQuery
 
 ## Prerequisites
-- Python 3
 - [Quacky](https://vlab.cs.ucsb.edu/quacky/)
-  - [ABC](https://github.com/vlab-cs-ucsb/ABC)
 
 ## Download
-<pre>
+```
 git clone https://github.com/ganeshsankaran/quacky-web-app.git
 cd quacky-web-app
-git pull origin master
-</pre>
+```
 
 ## Setup
 Install prerequisites from `requirements.txt` using `pip3`.
-<pre>
+```
 sudo pip3 install -r requirements.txt
-</pre>
+```
 
 ## Usage
 Start the server on port 80.
-<pre>
+```
 sudo python3 manage.py runserver 0.0.0.0:80 &!
-</pre>
-<i>Note: Please make sure that the firewall allows HTTP traffic.</i>
+```
+*Note: Please make sure that the firewall allows HTTP traffic.*
