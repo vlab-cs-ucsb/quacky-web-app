@@ -213,11 +213,11 @@
                     <label>Relative Permissiveness</label>
                     <div class="card">
                         <div class="card-body monospace" style="overflow: auto; white-space: nowrap;">
-                            {% if results.0.is_sat == "SAT" and results.1.is_sat == "UNSAT" %}
+                            {% if results.0.is_sat == "sat" and results.1.is_sat == "unsat" %}
                             <samp>Policy 1 is <strong>more permissive</strong> than Policy 2</samp>
-                            {% elif results.0.is_sat == "UNSAT" and results.1.is_sat == "SAT" %}
+                            {% elif results.0.is_sat == "unsat" and results.1.is_sat == "sat" %}
                             <samp>Policy 1 is <strong>less permissive</strong> than Policy 2</samp>
-                            {% elif results.0.is_sat == "UNSAT" and results.1.is_sat == "UNSAT" %}
+                            {% elif results.0.is_sat == "unsat" and results.1.is_sat == "unsat" %}
                             <samp>Policy 1 is <strong>equivalent</strong> to Policy 2</samp>
                             {% else %}
                             <samp>Policy 1 and Policy 2 <strong>do not subsume each other</strong></samp>
